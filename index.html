@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>zoom</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        html{
+            height: 100%;
+            width: 100%;
+        }
+        body{
+            height: 100%;
+            width: 100%;
+        }
+        .box{
+            padding: 40px;
+            width: 100%;
+            box-sizing: border-box;
+            height: 100%;
+        }
+        .container{
+            width: 100%;
+            height: 100%;
+            background-color: rgba(250, 250, 250, 0.74);
+            overflow: auto;
+        }
+
+        .view{
+            width: 1920px;
+            height: 1080px;
+            background-color: skyblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="container">
+            <div class="view">
+                视图区域
+            </div>
+        </div>
+    </div>
+</body>
+</html>
