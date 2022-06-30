@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div {
+            width: 105px;
+            height: 105px;
+            background: #cdf;
+            padding: 5px;
+        }
+
+    </style>
+</head>
+<body>
+<div>Scale me with your mouse wheel.</div>
+<script>
+    function zoom(event) {
+        event.preventDefault();
+        scale += event.deltaY * -0.01;
+
+        // Restrict scale
+        console.log(event.deltaY, scale);
+
+        scale = Math.min(Math.max(.125, scale), 4);
+
+        // Apply scale transform
+        el.style.transform = `scale(${scale})`;
+    }
+
+    let scale = 1;
+    const el = document.querySelector('div');
+    el.onwheel = zoom;
+
+</script>
+</body>
+</html>

@@ -4,45 +4,109 @@
     <meta charset="UTF-8">
     <title>zoom</title>
     <style>
-        *{
+        * {
             padding: 0;
             margin: 0;
         }
-        html{
+
+        html {
             height: 100%;
             width: 100%;
         }
-        body{
+
+        body {
             height: 100%;
             width: 100%;
         }
-        .box{
+
+        .box {
             padding: 40px;
             width: 100%;
             box-sizing: border-box;
             height: 100%;
+            overflow: hidden;
         }
-        .container{
+
+        .container {
             width: 100%;
             height: 100%;
             background-color: rgba(250, 250, 250, 0.74);
-            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
-        .view{
+        .view {
             width: 1920px;
             height: 1080px;
             background-color: skyblue;
+            transform-origin: 0 0;
+        }
+
+        .view > p + p {
+            margin-top: 16px;
+        }
+
+        p {
+            /*background-color: saddlebrown;*/
+        }
+
+        .view {
+            background-image: url("./image/wallhaven-9mvj68_1920x1080 (1).png");
+            background-repeat: no-repeat;
         }
     </style>
 </head>
 <body>
-    <div class="box">
-        <div class="container">
-            <div class="view">
-                视图区域
+<div class="box">
+    <div id="container" class="container">
+        <div class="view-container" id="viewBox">
+            <div class="view" id="view">
             </div>
         </div>
     </div>
+</div>
+<script type="module">
+    import {debounce} from "./node_modules/lodash-es/lodash.js";
+
+    const ele = document.getElementById('container');
+
+
+    const view = document.getElementById('view');
+    let scale = 1;
+    let center = null;
+    // 上一次的偏移量 和 额外偏移量
+    let oldOffsetX = 0, oldOffsetY = 0, extraOffsetX = 0, extraOffsetY = 0;
+    const isMac = /macintosh|mac os x/i.test(navigator.userAgent);
+    const clearCenter = debounce(() => {
+        center = null
+    }, 500)
+    const wheelEvent = event => {
+        console.log(event.offsetX, event.offsetY);
+        let hasDown = isMac ? event.metaKey : event.ctrlKey;
+        if (hasDown) {
+            if (!center) {
+                let {offsetX, offsetY} = event;
+                center = {offsetX, offsetY};
+                extraOffsetX = scale * offsetX - offsetX - oldOffsetX + extraOffsetX;
+                extraOffsetY = scale * offsetY - offsetY - oldOffsetY + extraOffsetY;
+            }
+            scale += event.deltaY * -0.001;
+            scale = Math.min(Math.max(.125, scale), 4);
+            oldOffsetX = (scale - 1) * center.offsetX
+            oldOffsetY = (scale - 1) * center.offsetY
+            view.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${-oldOffsetX + extraOffsetX}, ${-oldOffsetY + extraOffsetY})`
+            clearCenter();
+        }
+    }
+
+    ele.addEventListener('wheel', wheelEvent);
+
+
+    document.getElementById('container').addEventListener('scroll', event => {
+        console.log('scroll', event);
+    })
+</script>
 </body>
 </html>
