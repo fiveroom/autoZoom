@@ -83,6 +83,7 @@
         center = null
     }, 500)
     const wheelEvent = event => {
+        event.preventDefault()
         console.log(event.offsetX, event.offsetY);
         let hasDown = isMac ? event.metaKey : event.ctrlKey;
         if (hasDown) {
@@ -92,6 +93,7 @@
                 extraOffsetX = scale * offsetX - offsetX - oldOffsetX + extraOffsetX;
                 extraOffsetY = scale * offsetY - offsetY - oldOffsetY + extraOffsetY;
             }
+            console.log('event.deltaY :>> ', event.deltaY);
             scale += event.deltaY * -0.001;
             scale = Math.min(Math.max(.125, scale), 4);
             oldOffsetX = (scale - 1) * center.offsetX
@@ -103,7 +105,9 @@
 
     ele.addEventListener('wheel', wheelEvent);
 
-
+    view.addEventListener('click', (event) => {
+        console.log(event.offsetX, event.offsetY);
+    })
     document.getElementById('container').addEventListener('scroll', event => {
         console.log('scroll', event);
     })
