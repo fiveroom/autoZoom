@@ -25,6 +25,17 @@
             box-sizing: border-box;
             height: 100%;
             overflow: hidden;
+            position: relative;
+        }
+
+        .scale-info {
+            position: absolute;
+            top: 4px;
+            padding: 5px 12px;
+            border-radius: 4px;
+            box-shadow: 0 0 7px 3px rgb(0 0 0 / 13%);
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .container {
@@ -56,34 +67,62 @@
             background-image: url("./image/wallhaven-9mvj68_1920x1080 (1).png");
             background-repeat: no-repeat;
         }
+
+        .view-animal{
+            transition: transform;
+            transition-duration: .25s;
+        }
     </style>
 </head>
 <body>
 <div class="box">
+    <div class="scale-info" id="scaleInfo">
+
+    </div>
     <div id="container" class="container">
-        <div class="view-container" id="viewBox">
-            <div class="view" id="view">
-            </div>
-        </div>
+        <div class="view view-animal" id="view"></div>
     </div>
 </div>
 <script type="module">
     import {debounce} from "./node_modules/lodash-es/lodash.js";
 
     const ele = document.getElementById('container');
+    const scaleInfo = document.getElementById('scaleInfo');
 
+    const viewBox = document.getElementById('container');
+    const viewBoxRect = viewBox.getBoundingClientRect();
+    const originSize = {width: 1920, height: 1080};
+    let gapWidth = 0, gapHeight = 0, scale = 0;
 
-    const view = document.getElementById('view');
-    let scale = 1;
-    let center = null;
     // 上一次的偏移量 和 额外偏移量
     let oldOffsetX = 0, oldOffsetY = 0, extraOffsetX = 0, extraOffsetY = 0;
+    const view = document.getElementById('view');
+    view.addEventListener('transitionend', () => view.classList.remove('view-animal'))
+    // 初始化 适应画布的初始大小
+    // 记录初始值完成还原功能？容器大小改变重新计算 还是使用原本大小？
+    gapHeight = viewBoxRect.height / 20;
+    let scaleHeight = (viewBoxRect.height - gapHeight * 2) / originSize.height;
+    gapWidth = viewBoxRect.width / 20;
+    let scaleWidth = (viewBoxRect.width - gapWidth * 2) / originSize.width;
+    scale = Math.min(scaleWidth, scaleHeight);
+    gapWidth = (viewBoxRect.width - originSize.width * scale) / 2;
+    gapHeight = (viewBoxRect.height - originSize.height * scale) / 2;
+    scaleInfo.innerText = scale.toFixed(4);
+    let center = {offsetX: Math.round(originSize.width / 2), offsetY: Math.round(originSize.height / 2)};
+    oldOffsetX = (scale - 1) * center.offsetX;
+    oldOffsetY = (scale - 1) * center.offsetY;
+    view.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${-oldOffsetX}, ${-oldOffsetY})`;
+    center = null
+
+    // TODO 计算左右上下间隙，用作滚动
+
+
     const isMac = /macintosh|mac os x/i.test(navigator.userAgent);
     const clearCenter = debounce(() => {
         center = null
     }, 500)
+
     const wheelEvent = event => {
-        console.log(event.offsetX, event.offsetY);
         let hasDown = isMac ? event.metaKey : event.ctrlKey;
         if (hasDown) {
             if (!center) {
@@ -94,9 +133,10 @@
             }
             scale += event.deltaY * -0.001;
             scale = Math.min(Math.max(.125, scale), 4);
-            oldOffsetX = (scale - 1) * center.offsetX
-            oldOffsetY = (scale - 1) * center.offsetY
-            view.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${-oldOffsetX + extraOffsetX}, ${-oldOffsetY + extraOffsetY})`
+            oldOffsetX = (scale - 1) * center.offsetX;
+            oldOffsetY = (scale - 1) * center.offsetY;
+            scaleInfo.innerText = scale.toFixed(4)
+            view.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${-oldOffsetX + extraOffsetX}, ${-oldOffsetY + extraOffsetY})`;
             clearCenter();
         }
     }
